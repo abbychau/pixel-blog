@@ -231,6 +231,22 @@ export function initializeDatabase() {
     )
   `);
 
+  // Comments table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      article_id INTEGER NOT NULL,
+      user_id INTEGER NOT NULL,
+      content TEXT NOT NULL,
+      parent_id INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (article_id) REFERENCES articles (id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+      FOREIGN KEY (parent_id) REFERENCES comments (id) ON DELETE CASCADE
+    )
+  `);
+
   // Insert default system settings only if none exist
   const existingSettingsCount = db.prepare('SELECT COUNT(*) as count FROM system_settings').get() as { count: number };
   
@@ -346,6 +362,15 @@ export function initializeDatabase() {
   } catch (error) {
     // Column already exists, ignore error
     console.log('ℹ️ last_daily_claim column already exists in users table');
+  }
+
+  // Migration: Add comments_enabled column to articles if it doesn't exist
+  try {
+    db.exec(`ALTER TABLE articles ADD COLUMN comments_enabled BOOLEAN DEFAULT 1`);
+    console.log('✅ Added comments_enabled column to articles table');
+  } catch (error) {
+    // Column already exists, ignore error
+    console.log('ℹ️ comments_enabled column already exists in articles table');
   }
 
   // Migration: Update existing users to use current username as display_name and create new username
@@ -879,6 +904,44 @@ function populateQueries() {
   `),
   getUserCurrency: db.prepare(`
     SELECT currency1 FROM users WHERE id = ?
+  `),
+
+  // Comment queries
+  getArticleComments: db.prepare(`
+    SELECT c.*, 
+           u.username, u.display_name, u.avatar, u.display_color
+    FROM comments c
+    LEFT JOIN users u ON c.user_id = u.id
+    WHERE c.article_id = ?
+    ORDER BY c.created_at ASC
+  `),
+  insertComment: db.prepare(`
+    INSERT INTO comments (article_id, user_id, content, parent_id) 
+    VALUES (?, ?, ?, ?)
+  `),
+  updateComment: db.prepare(`
+    UPDATE comments 
+    SET content = ?, updated_at = CURRENT_TIMESTAMP 
+    WHERE id = ? AND user_id = ?
+  `),
+  deleteComment: db.prepare(`
+    DELETE FROM comments 
+    WHERE id = ? AND user_id = ?
+  `),
+  getCommentById: db.prepare(`
+    SELECT c.*, 
+           u.username, u.display_name, u.avatar, u.display_color
+    FROM comments c
+    LEFT JOIN users u ON c.user_id = u.id
+    WHERE c.id = ?
+  `),
+  getCommentReplies: db.prepare(`
+    SELECT c.*, 
+           u.username, u.display_name, u.avatar, u.display_color
+    FROM comments c
+    LEFT JOIN users u ON c.user_id = u.id
+    WHERE c.parent_id = ?
+    ORDER BY c.created_at ASC
   `)
   });
 }
@@ -1042,4 +1105,19 @@ export interface Reaction {
 export interface ReactionCount {
   emoji: string;
   count: number;
+}
+
+export interface Comment {
+  id: number;
+  article_id: number;
+  user_id: number;
+  content: string;
+  parent_id?: number;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  username?: string;
+  display_name?: string;
+  avatar?: string;
+  display_color?: string;
 }

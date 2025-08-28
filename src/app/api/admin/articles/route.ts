@@ -6,9 +6,6 @@ import { updateImageUsageForArticle } from '@/lib/imageUsageTracker';
 
 export async function GET(request: NextRequest) {
   try {
-    // Debug: Check what headers we're receiving
-    const firebaseEmail = request.headers.get('x-firebase-email');
-    console.log('🔍 Admin articles API - Firebase email header:', firebaseEmail);
     
     // Get current user
     const user = await getUserFromRequest(request);

@@ -3,11 +3,9 @@ import { getUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const firebaseEmail = request.headers.get('x-firebase-email');
     const authHeader = request.headers.get('authorization');
     const sessionTokenHeader = request.headers.get('x-session-token');
     
-    console.log('🔍 User info API - Firebase email header:', firebaseEmail);
     console.log('🔍 User info API - Auth header:', authHeader ? `Bearer ${authHeader.substring(7, 15)}...` : 'none');
     console.log('🔍 User info API - Session token header:', sessionTokenHeader ? `${sessionTokenHeader.substring(0, 8)}...` : 'none');
     

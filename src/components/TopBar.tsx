@@ -183,16 +183,16 @@ export default function TopBar({
     if (rightContent) return rightContent;
 
     return (
-      <div className="flex items-center gap-6 text-xs font-mono">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:gap-6 text-xs font-mono">
+        <div className="hidden md:flex items-center gap-2">
           <span className="terminal-blue">STATUS:</span>
           <span className="terminal-green">{status}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <span className="terminal-blue">ARTICLES:</span>
           <span className="terminal-yellow">{articles.length}</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           <span className="terminal-blue">TIME:</span>
           <span className="terminal-green">{currentTime || '---'}</span>
         </div>
@@ -205,7 +205,7 @@ export default function TopBar({
               className="flex items-center gap-1 terminal-green hover:bg-bloomberg-green hover:text-black px-2 py-1 rounded transition-colors font-bold"
             >
               <Plus size={14} />
-              NEW
+              <span className="hidden sm:inline">NEW</span>
             </Link>
             
           </div>
@@ -217,28 +217,29 @@ export default function TopBar({
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-bloomberg-bg border-b border-bloomberg-orange">
       {/* Main Terminal Bar with integrated marquee */}
-      <div className="flex items-center justify-between px-4 py-2 bg-bloomberg-darkgray/50">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between px-2 sm:px-4 py-2 bg-bloomberg-darkgray/50">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link 
             href="/" 
-            className="terminal-orange font-bold font-mono text-sm tracking-wider hover:underline"
+            className="terminal-orange font-bold font-mono text-xs sm:text-sm tracking-wider hover:underline"
           >
-            M2NP/TERMINAL
+            <span className="sm:hidden">M2NP</span>
+            <span className="hidden sm:inline">M2NP/TERMINAL</span>
           </Link>
           
           {/* New Article Button */}
           {showNewArticleButton && (
             <Link 
               href="/new"
-              className="flex items-center gap-1 bg-bloomberg-green text-bloomberg-bg px-3 py-1 rounded font-mono text-xs font-bold uppercase tracking-wider hover:bg-bloomberg-green/80 transition-colors"
+              className="flex items-center gap-1 bg-bloomberg-green text-bloomberg-bg px-2 sm:px-3 py-1 rounded font-mono text-xs font-bold uppercase tracking-wider hover:bg-bloomberg-green/80 transition-colors"
             >
               <Plus size={12} />
-              NEW
+              <span className="hidden sm:inline">NEW</span>
             </Link>
           )}
           
-          {/* Flipboard Display */}
-          <div className="flex-1 min-w-0 max-w-md mx-4">
+          {/* Flipboard Display - Hidden on mobile */}
+          <div className="hidden sm:block flex-1 min-w-0 max-w-md mx-4">
             <div className="flex items-center gap-2 font-mono text-xs">
               <span className="terminal-blue flex-shrink-0">LATEST:</span>
               <div 
@@ -291,7 +292,7 @@ export default function TopBar({
           </div>
         </div>
         
-        <div className="flex items-center gap-6 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0">
           {generateRightContent()}
           
           {/* Theme Toggle */}

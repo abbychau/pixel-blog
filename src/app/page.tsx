@@ -363,7 +363,7 @@ function HomePage() {
       />
 
       {/* Main Content with top padding for fixed header */}
-      <div className={`${(isAdmin || firebaseUser) ? 'pt-24' : 'pt-20'} px-8 pb-8`}>
+      <div className={`pt-20 px-2 pb-8 md:px-8`}>
         
         {/* Status Message for admins */}
         {isAdmin && statusMessage && (

@@ -6,9 +6,7 @@
       "args": "run start:prod",
       "cwd": "/home/abby/pixel-blog",
       "instances": 1,
-      "exec_mode": "cluster",
       "watch": false,
-      "max_memory_restart": "1G",
       "env": {
         "NODE_ENV": "production",
         "PORT": "55679"
@@ -23,12 +21,7 @@
       "log_file": "./logs/pm2-combined.log",
       "time": true,
       "autorestart": true,
-      "restart_delay": 1000,
-      "max_restarts": 10,
-      "min_uptime": "10s",
-      "kill_timeout": 5000,
-      "wait_ready": true,
-      "listen_timeout": 10000
+      "exec_mode": "fork"
     }
   ]
 }

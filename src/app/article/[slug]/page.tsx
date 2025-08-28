@@ -10,6 +10,7 @@ import { useFirebaseAuth } from '@/contexts/FirebaseAuthContext';
 import { useAuthenticatedFetch } from '@/hooks/useAuthenticatedFetch';
 import MarkdownContent from '@/components/markdown-content';
 import ArticleReactions from '@/components/ArticleReactions';
+import ArticleComments from '@/components/ArticleComments';
 import AuthButtons from '@/components/AuthButtons';
 import Avatar from '@/components/Avatar';
 import TipButton from '@/components/TipButton';
@@ -33,6 +34,7 @@ interface Article {
   status: string;
   published_at?: string;
   created_at: string;
+  comments_enabled?: boolean;
 }
 
 export default function ArticlePage() {
@@ -167,12 +169,12 @@ export default function ArticlePage() {
       <TopBar 
         showNewArticleButton={!!firebaseUser}
         rightContent={
-          <div className="flex items-center gap-6 text-xs font-mono">
+          <div className="flex items-center gap-6 text-xs font-mono hidden md:flex">
             <div className="flex items-center gap-2">
               <span className="terminal-blue">ARTICLES:</span>
               <span className="terminal-yellow">{articles.filter(a => a.status === 'published').length}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 hidden md:flex">
               <span className="terminal-blue">TIME:</span>
               <span className="terminal-green">{currentTime || '---'}</span>
             </div>
@@ -198,50 +200,57 @@ export default function ArticlePage() {
           <div className="">
             <h1 className="text-4xl font-bold terminal-orange mb-4 tracking-wide">{article.title}</h1>
             
-            <div className="flex gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <span>AUTHOR:</span>
-                <Avatar
-                  src={article.author_avatar}
-                  alt={article.author_name || 'Unknown'}
-                  size="xs"
-                  fallbackColor={article.author_color || '#0080ff'}
-                />
-                <Link
-                  href={`/?author=${article.author_id}`}
-                  className="font-mono font-bold hover:underline transition-colors"
-                  style={{ color: article.author_color || '#0080ff' }}
-                >
-                  {article.author_name?.toUpperCase() || 'UNKNOWN'}
-                </Link>
-              </div>
-              {article.category_name && (
-                <div>
-                  CATEGORY: <Link
-                    href={`/?category=${article.category_id}`}
-                    className="font-bold hover:underline transition-colors"
-                    style={{ color: article.category_color || '#ff8c00' }}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-6 text-sm">
+              {/* First line on mobile: Author and Category */}
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                <div className="flex items-center gap-2">
+                  <span>AUTHOR:</span>
+                  <Avatar
+                    src={article.author_avatar}
+                    alt={article.author_name || 'Unknown'}
+                    size="xs"
+                    fallbackColor={article.author_color || '#0080ff'}
+                  />
+                  <Link
+                    href={`/?author=${article.author_id}`}
+                    className="font-mono font-bold hover:underline transition-colors"
+                    style={{ color: article.author_color || '#0080ff' }}
                   >
-                    {article.category_name.toUpperCase()}
+                    {article.author_name?.toUpperCase() || 'UNKNOWN'}
                   </Link>
                 </div>
-              )}
-              <div>
-                PUBLISHED: <span className="terminal-green">
-                  {article.published_at ? formatDate(article.published_at) : formatDate(article.created_at)}
-                </span>
+                {article.category_name && (
+                  <div>
+                    CATEGORY: <Link
+                      href={`/?category=${article.category_id}`}
+                      className="font-bold hover:underline transition-colors"
+                      style={{ color: article.category_color || '#ff8c00' }}
+                    >
+                      {article.category_name.toUpperCase()}
+                    </Link>
+                  </div>
+                )}
               </div>
-              <div>
-                STATUS: <span className={article.status === 'published' ? 'terminal-green' : 'terminal-blue'}>
-                  {article.status.toUpperCase()}
-                </span>
+              
+              {/* Second line on mobile: Published and Status */}
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                <div>
+                  PUBLISHED: <span className="terminal-green">
+                    {article.published_at ? formatDate(article.published_at) : formatDate(article.created_at)}
+                  </span>
+                </div>
+                <div>
+                  STATUS: <span className={article.status === 'published' ? 'terminal-green' : 'terminal-blue'}>
+                    {article.status.toUpperCase()}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <main className="p-8">
+        <main className="p-2 md:p-8">
         <div className="max-w-4xl mx-auto">
           <div className="bloomberg-panel">
             <MarkdownContent 
@@ -255,6 +264,15 @@ export default function ArticlePage() {
             <div className="bloomberg-panel">
               <ArticleReactions articleId={article.id} />
             </div>
+          </div>
+
+          {/* Comments Section */}
+          <div className="mt-8">
+            <ArticleComments 
+              articleId={article.id}
+              articleSlug={article.slug}
+              commentsEnabled={article.comments_enabled !== false}
+            />
           </div>
 
           {/* Tip Section */}
